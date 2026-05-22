@@ -59,5 +59,5 @@ def read_key() -> Tuple[PressedKey, str]:
             return PressedKey.Delete, seq
 
         # Fallback: unknown escape sequence acts as Escape.
-        return PressedKey.Escape, seq
+        return PressedKey.Nop, seq
     return PressedKey.Nop, ""

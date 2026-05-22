@@ -21,10 +21,8 @@ def enable_vt_mode():
     write(ALT_SCR_ENTER + CLS + HOME)
     return (fd_in, old_in_attrs)
 
-def exit_vt_mode():
+def exit_vt_mode(fd_in, old_in_attrs):
     write(ALT_SCR_EXIT)
-
-def restore_mode(fd_in, old_in_attrs):
     termios.tcsetattr(fd_in, termios.TCSADRAIN, old_in_attrs)
 
 def print_pos(row: int, col: int, s: str, fg: Optional['Color'] = None, bg: Optional['BgColor'] = None, bold: bool = False):

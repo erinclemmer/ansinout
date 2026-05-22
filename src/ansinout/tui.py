@@ -131,10 +131,10 @@ class TuiWindow(TuiGrid):
         self._current_id = 0
         self.text_objects = []
 
-    def get_text(self, id: int) -> TuiText:
+    def get_text(self, id: int) -> Optional[TuiText]:
         objs = [o for o in self.text_objects if o.id == id]
         if len(objs) == 0:
-            raise Exception("Could not find text id for TuiWindow")
+            return None
         return objs[0]
 
     def add_text(self, v: TermText, pos: Tuple[int, int]) -> int:
@@ -145,6 +145,8 @@ class TuiWindow(TuiGrid):
     
     def clear_text(self, id: int):
         txt = self.get_text(id)
+        if txt is None:
+            return
         whitespace_v = TermText(''.join((c if c.isspace() else ' ') for c in txt.text.value))
         whitespace_obj = TuiText(-1, whitespace_v, txt.position)
         for clear_v, rel_pos in whitespace_obj.get_cells():
@@ -155,16 +157,19 @@ class TuiWindow(TuiGrid):
 
     def hide_txt(self, id: int):
         txt = self.get_text(id)
+        if txt is None:
+            return
         txt.hidden = True
         self.clear_text(id)
 
     def hide_all(self):
         for txt in self.text_objects:
             self.hide_txt(txt.id)
-        self.hidden = True
             
     def show_txt(self, id: int):
         txt = self.get_text(id)
+        if txt is None:
+            return
         txt.hidden = False
         self._update_grid()
 
@@ -181,13 +186,11 @@ class TuiWindow(TuiGrid):
             self.remove_txt(txt.id)
 
     def update_text(self, id: int, v: Optional[TermText], pos: Optional[Tuple[int, int]] = None):
-        if v is not None and not isinstance(v, TermText):
-            raise Exception("TuiWindow must use TermText")
-        try:
-            txtObj = self.get_text(id)
-        except Exception:
-            return
+        txtObj = self.get_text(id)
 
+        if txtObj is None:
+            return
+        
         self.clear_text(id)
 
         if v is not None:

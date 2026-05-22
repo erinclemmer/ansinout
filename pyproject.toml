@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ansinout"
+version = "1.0.0"
+description = "A dependency-free Python library for building Terminal User Interfaces."
+readme = "readme.md"
+requires-python = ">=3.8"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Erin Clemmer", email = "erin.c.clemmer@gmail.com" },
+]
+keywords = ["tui", "terminal", "ansi", "console", "cli", "ncurses"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS",
+    "Operating System :: Unix",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Terminals",
+    "Environment :: Console",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ansinout"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/ansinout",
+    "readme.md",
+    "LICENSE",
+]

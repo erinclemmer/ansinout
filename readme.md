@@ -1,6 +1,5 @@
-## ANSINOUT (ANSI + IN + OUT)
-
-A small, dependency-free Python library for building Terminal User Interfaces.
+## ANSINOUT 
+ANSI + IN + OUT. A small, dependency-free Python library for building Terminal User Interfaces.
 
 Ansinout provides a thin layer over raw ANSI escape codes without the weight of a full framework.
 

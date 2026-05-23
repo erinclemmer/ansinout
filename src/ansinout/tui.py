@@ -113,7 +113,7 @@ class TuiText:
         lines = self.text.value.split("\n")
         for x in range(0, self.size[0]):
             for y in range(0, self.size[1]):
-                if x > len(lines[y]) - 1:
+                if y > len(lines) or x > len(lines[y]) - 1:
                     continue
                 tt = TermText(lines[y][x], self.text.fg, self.text.bg, self.text.bold)
                 cells.append((tt, (

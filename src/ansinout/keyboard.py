@@ -18,6 +18,8 @@ class PressedKey(Enum):
     Enter = "Enter"
     Escape = "Escape"
     Delete = "Delete"
+    PageUp = "PageUp"
+    PageDown = "PageDown"
     Nop = "Nop"
 
 def _read_byte() -> str:
@@ -57,6 +59,10 @@ def read_key() -> Tuple[PressedKey, str]:
             return PressedKey.ArrowRight, seq
         if seq == "[3~":
             return PressedKey.Delete, seq
+        if seq == "[5~":
+            return PressedKey.PageUp, seq
+        if seq == "[6~":
+            return PressedKey.PageDown, seq
 
         # Fallback: unknown escape sequence acts as Escape.
         return PressedKey.Nop, seq

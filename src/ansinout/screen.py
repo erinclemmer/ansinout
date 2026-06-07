@@ -1,8 +1,16 @@
+import os
 import sys
-import termios
-import tty
 from enum import Enum
 from typing import Optional
+
+_IS_WINDOWS = os.name == "nt"
+
+if _IS_WINDOWS:
+    import ctypes
+    from ctypes import wintypes
+else:
+    import termios
+    import tty
 
 ESC = "\x1b["
 ALT_SCR_ENTER = f"{ESC}?1049h"
@@ -10,20 +18,46 @@ ALT_SCR_EXIT  = f"{ESC}?1049l"
 CLS = f"{ESC}2J"
 HOME = f"{ESC}H"
 
+# Windows console handle / mode constants
+_STD_OUTPUT_HANDLE = -11
+_ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
+
 def write(s: str):
     sys.stdout.write(s)
     sys.stdout.flush()
 
+def _enable_vt_mode_windows():
+    # Turn on ANSI/VT escape sequence processing for stdout so the same
+    # escape codes used on POSIX render correctly in the Windows console.
+    kernel32 = ctypes.windll.kernel32
+    handle = kernel32.GetStdHandle(_STD_OUTPUT_HANDLE)
+    old_mode = wintypes.DWORD()
+    kernel32.GetConsoleMode(handle, ctypes.byref(old_mode))
+    kernel32.SetConsoleMode(
+        handle, old_mode.value | _ENABLE_VIRTUAL_TERMINAL_PROCESSING
+    )
+    write(ALT_SCR_ENTER + CLS + HOME)
+    return (handle, old_mode.value)
+
+def _exit_vt_mode_windows(handle, old_mode):
+    write(ALT_SCR_EXIT)
+    ctypes.windll.kernel32.SetConsoleMode(handle, old_mode)
+
 def enable_vt_mode():
+    if _IS_WINDOWS:
+        return _enable_vt_mode_windows()
     fd_in = sys.stdin.fileno()
     old_in_attrs = termios.tcgetattr(fd_in)
     tty.setcbreak(fd_in)
     write(ALT_SCR_ENTER + CLS + HOME)
     return (fd_in, old_in_attrs)
 
-def exit_vt_mode(fd_in, old_in_attrs):
+def exit_vt_mode(handle, old_state):
+    if _IS_WINDOWS:
+        _exit_vt_mode_windows(handle, old_state)
+        return
     write(ALT_SCR_EXIT)
-    termios.tcsetattr(fd_in, termios.TCSADRAIN, old_in_attrs)
+    termios.tcsetattr(handle, termios.TCSADRAIN, old_state)
 
 def print_pos(row: int, col: int, s: str, fg: Optional['Color'] = None, bg: Optional['BgColor'] = None, bold: bool = False):
     # ANSI positions are 1-based

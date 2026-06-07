@@ -38,17 +38,17 @@ finally:
 
 ### Screen lifecycle
 
-#### `enable_vt_mode() -> (fd, old_attrs)`
+#### `enable_vt_mode() -> (state, old_state)`
 
-Prepares the terminal for interactive use. The function captures the current termios attributes of standard input, switches the input file descriptor into cbreak mode so that key presses are delivered without line buffering, enters the alternate screen buffer, clears it, and moves the cursor to the home position. It returns a tuple containing the standard input file descriptor and the original termios attributes, which must be retained and passed to `exit_vt_mode` during shutdown.
+Prepares the terminal for interactive use. On POSIX systems it captures the current termios attributes of standard input, switches the input file descriptor into cbreak mode so that key presses are delivered without line buffering. On Windows it enables virtual-terminal (ANSI) processing on the console output so the same escape sequences render correctly. On either platform it then enters the alternate screen buffer, clears it, and moves the cursor to the home position. It returns an opaque tuple describing the previous terminal state, which must be retained and passed to `exit_vt_mode` during shutdown.
 
 ```python
-fd, attrs = enable_vt_mode()
+state, old_state = enable_vt_mode()
 ```
 
-#### `exit_vt_mode(fd, old_attrs)`
+#### `exit_vt_mode(state, old_state)`
 
-Restores the terminal to the state it was in before `enable_vt_mode` was called. The function leaves the alternate screen buffer, returning the terminal to the primary screen, and restores the original termios attributes captured by `enable_vt_mode`. The `fd` and `old_attrs` arguments must be the values returned from that call. It should typically be invoked inside a `finally` block to ensure the terminal is restored regardless of how the program exits.
+Restores the terminal to the state it was in before `enable_vt_mode` was called. The function leaves the alternate screen buffer, returning the terminal to the primary screen, and restores the original terminal state captured by `enable_vt_mode`. The arguments must be the values returned from that call. It should typically be invoked inside a `finally` block to ensure the terminal is restored regardless of how the program exits.
 
 ```python
 exit_vt_mode(fd, attrs)

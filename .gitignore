@@ -8,3 +8,4 @@ dist/
 venv/
 .env
 .pytest_cache/
+todo.txt

@@ -11,7 +11,7 @@ if _IS_WINDOWS:
 else:
     import select
 
-ACCEPTED_CHARS = ["_", "-", ".", "/", "\\", ":", " "]
+ACCEPTED_CHARS = ["_", "-", ".", "/", "\\", ":", " ", "{", "}", "[", "]", "(", ")", "\"", ",", "?", "/", "&", "^", "%", "$", "#", "@", "!", "+", "=", "<", ">", "'", "*"]
 
 def key_available(timeout: float = 0.0):
     if _IS_WINDOWS:

@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Interactive Debug",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "tests/test.py",
+            "console": "integratedTerminal"
+        }
+    ]
+}

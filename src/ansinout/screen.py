@@ -15,6 +15,8 @@ else:
 ESC = "\x1b["
 ALT_SCR_ENTER = f"{ESC}?1049h"
 ALT_SCR_EXIT  = f"{ESC}?1049l"
+BRACKET_PASTE_ENTER = f"{ESC}?2004h"
+BRACKET_PASTE_EXIT  = f"{ESC}?2004l"
 CLS = f"{ESC}2J"
 HOME = f"{ESC}H"
 
@@ -49,14 +51,14 @@ def enable_vt_mode():
     fd_in = sys.stdin.fileno()
     old_in_attrs = termios.tcgetattr(fd_in)
     tty.setcbreak(fd_in)
-    write(ALT_SCR_ENTER + CLS + HOME)
+    write(ALT_SCR_ENTER + BRACKET_PASTE_ENTER + CLS + HOME)
     return (fd_in, old_in_attrs)
 
 def exit_vt_mode(handle, old_state):
     if _IS_WINDOWS:
         _exit_vt_mode_windows(handle, old_state)
         return
-    write(ALT_SCR_EXIT)
+    write(BRACKET_PASTE_EXIT + ALT_SCR_EXIT)
     termios.tcsetattr(handle, termios.TCSADRAIN, old_state)
 
 def print_pos(row: int, col: int, s: str, fg: Optional['Color'] = None, bg: Optional['BgColor'] = None, bold: bool = False):

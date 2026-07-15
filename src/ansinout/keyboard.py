@@ -42,6 +42,7 @@ class PressedKey(Enum):
     Delete = "Delete"
     PageUp = "PageUp"
     PageDown = "PageDown"
+    Paste = "Paste"
     Nop = "Nop"
 
 # Maps the scancode byte that follows the \x00/\xe0 prefix returned by
@@ -56,9 +57,29 @@ _WINDOWS_SPECIAL_KEYS = {
     "Q": PressedKey.PageDown,
 }
 
+_PASTE_START = "[200~"
+_PASTE_END = "\x1b[201~"
+
 def _read_byte() -> str:
     data = os.read(sys.stdin.fileno(), 1)
     return data.decode("utf-8", errors="ignore") if data else ""
+
+def _read_paste() -> str:
+    # Consumes bytes up to the closing \x1b[201~ marker. Newlines are dropped so
+    # that a pasted trailing newline is not mistaken for the Enter key.
+    body = ""
+    while not body.endswith(_PASTE_END):
+        # A terminal that opened a paste always closes it; bail out rather than
+        # block forever if the end marker never arrives.
+        if not key_available(1.0):
+            break
+        ch = _read_byte()
+        if ch == "":
+            break
+        body += ch
+    else:
+        body = body[: -len(_PASTE_END)]
+    return body.replace("\r", "").replace("\n", "")
 
 def _read_key_windows() -> Tuple[PressedKey, str]:
     ch = msvcrt.getwch()
@@ -119,6 +140,8 @@ def read_key() -> Tuple[PressedKey, str]:
             return PressedKey.PageUp, seq
         if seq == "[6~":
             return PressedKey.PageDown, seq
+        if seq == _PASTE_START:
+            return PressedKey.Paste, _read_paste()
 
         # Fallback: unknown escape sequence acts as Escape.
         return PressedKey.Nop, seq

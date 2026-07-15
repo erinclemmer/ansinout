@@ -178,7 +178,15 @@ elif key == PressedKey.Backspace:
 
 #### `PressedKey`
 
-An enumeration of the key categories produced by `read_key`. The members are `Alpha`, `ArrowUp`, `ArrowDown`, `ArrowLeft`, `ArrowRight`, `Backspace`, `Enter`, `Escape`, `Delete`, and `Nop`. The `Alpha` category covers letters, digits, and a set of punctuation characters (`_`, `-`, `.`, `/`, `\`, and `:`). Bytes that do not match any recognized category are reported as `Nop`.
+An enumeration of the key categories produced by `read_key`. The members are `Alpha`, `ArrowUp`, `ArrowDown`, `ArrowLeft`, `ArrowRight`, `Backspace`, `Enter`, `Escape`, `Delete`, `PageUp`, `PageDown`, `Paste`, and `Nop`. The `Alpha` category covers letters, digits, and a set of punctuation characters (`_`, `-`, `.`, `/`, `\`, and `:`). Bytes that do not match any recognized category are reported as `Nop`.
+
+`Paste` is reported once for an entire pasted block, with the pasted text as the raw value rather than a single character. `enable_vt_mode` turns on the terminal's bracketed paste mode (POSIX only), which is what lets a paste be told apart from typing; newlines are stripped from the pasted text so that a trailing newline is not delivered as a stray `Enter`. Handle it alongside `Alpha` wherever text is accepted:
+
+```python
+key, raw = read_key()
+if key in (PressedKey.Alpha, PressedKey.Paste):
+    buffer += raw
+```
 
 ### Cursor functions
 
